@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Heater Graph</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Temperature and Output Graph</h1>
+    <button onclick="window.location.href='/logout'">Logout</button>
+    <br><br>
+    <!-- Date selection -->
+    <label for="start_time">From:</label>
+    <input type="datetime-local" id="start_time">
+    
+    <label for="end_time">To:</label>
+    <input type="datetime-local" id="end_time">
+    
+    <button id="loadData">Display Graph</button>
+    <button id="showAllData">Show All Data</button>
+
+    <canvas id="airHeaterChart" width="800" height="400"></canvas>
+
+    <script>
+        let airHeaterChart;
+
+        // Function to format local date and add seconds
+        function formatDateWithSeconds(dateStr) {
+            if (!dateStr) return '';  // If the date is empty, return an empty string
+
+            let date = new Date(dateStr);  // Create a Date object from the date string
+            
+            // Adjust to ensure the date is in local format
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+            let hours = date.getHours().toString().padStart(2, '0');
+            let minutes = date.getMinutes().toString().padStart(2, '0');
+            let seconds = date.getSeconds().toString().padStart(2, '0');
+
+            // Return formatted date: YYYY-MM-DD HH:MM:SS
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // Function to fetch and display data
+        function fetchDataAndUpdateGraph(startTime, endTime) {
+            // Format the dates to include seconds
+            startTime = formatDateWithSeconds(startTime);
+            endTime = formatDateWithSeconds(endTime);
+
+            // AJAX request to fetch data (filtered or full)
+            $.ajax({
+                url: "/api/graph_data",
+                method: "GET",
+                data: {
+                    start_time: startTime,
+                    end_time: endTime
+                },
+                success: function(data) {
+                    const timeLabels = data.time;
+                    const temperatureData = data.temperature;
+                    const outputData = data.output;
+                    const refData = data.reference;
+
+                    // Update the graph
+                    if (airHeaterChart) {
+                        airHeaterChart.destroy(); // Remove the previous graph
+                    }
+
+                    const ctx = document.getElementById('airHeaterChart').getContext('2d');
+                    airHeaterChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: timeLabels,
+                            datasets: [
+                                {
+                                    label: 'Temperature (°C)',
+                                    data: temperatureData,
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderWidth: 1,
+                                    yAxisID: 'y',
+                                },
+                                {
+                                    label: 'Output (V)',
+                                    data: outputData,
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    borderWidth: 1,
+                                    yAxisID: 'y1',
+                                },
+                                {
+                                    label: 'Reference (°C)',
+                                    data: refData,
+                                    borderColor: 'rgba(131, 205, 56, 1)',
+                                    backgroundColor: 'rgba(131, 205, 56, 0.2)',
+                                    borderWidth: 1,
+                                    yAxisID: 'y',
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    type: 'category',
+                                    title: {
+                                        display: true,
+                                        text: 'Time'
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Temperature (°C)'
+                                    }
+                                },
+                                y1: {
+                                    beginAtZero: true,
+                                    position: 'right',
+                                    title: {
+                                        display: true,
+                                        text: 'Output (V)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function() {
+                    alert("Error fetching data.");
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Button to load filtered data
+            $('#loadData').click(function() {
+                const startTime = $('#start_time').val();  // Get start date
+                const endTime = $('#end_time').val();  // Get end date
+
+                if (startTime && endTime) {
+                    // If both dates are selected, send them to filter data
+                    fetchDataAndUpdateGraph(startTime, endTime);
+                } else {
+                    alert("Please select start and end dates.");
+                }
+            });
+
+            // Button to show all data
+            $('#showAllData').click(function() {
+                // No date filter, fetch all data
+                fetchDataAndUpdateGraph(null, null);  // "null" indicates no filter
+            });
+        });
+    </script>
+</body>
+</html>
