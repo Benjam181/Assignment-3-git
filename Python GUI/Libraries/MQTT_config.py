@@ -10,6 +10,7 @@ class MQTT_config:
         type can be raspberry or laptop
         """
         try:
+            self.type = type
             # Initialize ConfigParser
             config = configparser.ConfigParser()
             config.read('../config.ini')
@@ -27,12 +28,12 @@ class MQTT_config:
             self.client.on_connect = self._on_connect
             self.client.on_disconnect = self._on_disconnect
             
-            if type == 'laptop':
+            if self.type == 'laptop':
                 # Initialize SQL database
                 self.sql = None
                 # if _connected == false, nothing happen.
                 self.sql_connection = False
-            elif type == 'raspberry':
+            elif self.type == 'raspberry':
                 pass
             else:
                 raise ValueError(f"Invalid mqtt_config type: {type}. Type must be 'raspberry' or 'laptop'")

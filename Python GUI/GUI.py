@@ -50,15 +50,15 @@ class App:
         self.pi_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # PI Controller Configurations
-        tk.Label(self.pi_frame, text="Reference:").grid(row=0, column=0, padx=5, sticky="w")
+        tk.Label(self.pi_frame, text="Reference (°C):").grid(row=0, column=0, padx=5, sticky="w")
         self.reference_entry = tk.Entry(self.pi_frame)
         self.reference_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         
-        tk.Label(self.pi_frame, text="Kp:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        tk.Label(self.pi_frame, text="Kp (V/K):").grid(row=1, column=0, padx=5, pady=5, sticky="w")
         self.kp_entry = tk.Entry(self.pi_frame)
         self.kp_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
-        tk.Label(self.pi_frame, text="Ti:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        tk.Label(self.pi_frame, text="Ti (s):").grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.ti_entry = tk.Entry(self.pi_frame)
         self.ti_entry.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 

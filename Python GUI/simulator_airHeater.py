@@ -37,7 +37,7 @@ import json
 from Libraries.Controllers import controllers
 
 # %% MQTT configuration
-mqtt_client = MQTT_config(type=1) # Type 1 means it is a publisher and subscriber
+mqtt_client = MQTT_config(type='raspberry')
 
 # %% Def of process model simulator
 
